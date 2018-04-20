@@ -1,0 +1,17 @@
+FROM local/c7-base
+MAINTAINER "Jason Shen" <jasonsh@timetxt.com>
+
+# create user jason as non-root user 
+
+RUN groupadd -g 5001 jason && \
+    useradd -u 5001 -g 5001 -m jason
+
+# This is going to install python36 and pip3
+RUN yum -y install python36u && \
+    yum -y install python36u-pip && \
+    yum clean all
+
+USER jason
+WORKDIR /home/jason
+
+CMD ["python3", "--version"]

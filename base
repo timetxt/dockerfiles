@@ -1,0 +1,37 @@
+FROM centos:7
+MAINTAINER "Jason Shen" <jasonsh@timetxt.com>
+ENV container docker
+
+# This is going to enable systemd
+
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
+systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+rm -f /lib/systemd/system/multi-user.target.wants/*;\
+rm -f /etc/systemd/system/*.wants/*;\
+rm -f /lib/systemd/system/local-fs.target.wants/*; \
+rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+rm -f /lib/systemd/system/basic.target.wants/*;\
+rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+# install git
+
+
+RUN yum -y update && \
+    yum clean all && \
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum -y install https://centos7.iuscommunity.org/ius-release.rpm && \ 
+    yum -y group install 'Development Tools' && \
+    yum -y install gettext-devel \
+                   openssl-devel \
+                   perl-CPAN \
+                   perl-devel \
+                   zlib-devel && \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
+RUN cd /tmp && curl -L https://github.com/git/git/archive/v2.16.3.tar.gz | tar zx && cd ./git-2.16.3 && make configure && ./configure --prefix=/usr/local && make install
+RUN rm -rf /tmp/git-v2.16.3
+
+VOLUME [ "/sys/fs/cgroup" ]
+CMD ["git", "--version""]
